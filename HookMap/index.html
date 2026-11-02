@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOOKMAP — Let’s Us Fish</title>
+  <meta name="description" content="HOOKMAP: scopri, confronta e prenota i migliori laghi per Carp Fishing in Italia." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#/" class="logo" aria-label="HOOKMAP home">
+        <span class="logo-mark">🎣</span>
+        <span class="logo-text">HOOK<span>MAP</span></span>
+      </a>
+
+      <nav class="main-nav" id="mainNav">
+        <a href="#/" data-nav="home">Home</a>
+        <a href="#/explore" data-nav="explore">Esplora laghi</a>
+        <a href="#/compare" data-nav="compare">Confronta</a>
+        <a href="#/community" data-nav="community">Community</a>
+        <a href="#/trips" data-nav="trips">Fishing Trips</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="btn btn-ghost" id="loginBtn">Accedi</button>
+        <button class="btn btn-gold" id="registerBtn">Registrati</button>
+        <button class="menu-toggle" id="menuToggle" aria-label="Apri menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app"></main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="#/" class="logo footer-logo">HOOK<span>MAP</span></a>
+        <p>La piattaforma italiana per scoprire, confrontare e prenotare laghi dedicati al Carp Fishing.</p>
+      </div>
+
+      <div>
+        <h4>Piattaforma</h4>
+        <a href="#/explore">Esplora laghi</a>
+        <a href="#/compare">Confronta</a>
+        <a href="#/community">Community</a>
+        <a href="#/trips">Fishing Trips</a>
+      </div>
+
+      <div>
+        <h4>Account</h4>
+        <a href="#/dashboard">Area pescatore</a>
+        <a href="#/dashboard">Area aziende</a>
+        <button class="link-btn" id="footerLogin">Accedi</button>
+        <button class="link-btn" id="footerRegister">Registrati</button>
+      </div>
+
+      <div>
+        <h4>Nota</h4>
+        <p>Versione dimostrativa. Laghi, prezzi, disponibilità, recensioni e catture sono dati di esempio non verificati.</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container">
+        <p>© <span id="year"></span> HOOKMAP — LET’S US FISH. Demo dimostrativa.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal" id="authModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal aria-label="Chiudi">×</button>
+
+      <h3 id="authTitle">Accedi a HOOKMAP</h3>
+      <p class="muted">Scegli il tipo di account. Demo: nessun dato viene inviato a un server.</p>
+
+      <form id="authForm">
+        <div class="account-type">
+          <label class="account-option">
+            <input type="radio" name="accountType" value="user" checked />
+            <span>
+              <strong>Pescatore</strong>
+              <small>Free o Premium</small>
+            </span>
+          </label>
+
+          <label class="account-option">
+            <input type="radio" name="accountType" value="business" />
+            <span>
+              <strong>Azienda / Gestore</strong>
+              <small>Gestione lago e servizi</small>
+            </span>
+          </label>
+        </div>
+
+        <label>Nome o ragione sociale
+          <input type="text" id="authUser" required placeholder="es. Marco Rossi / Carp Lake S.r.l." />
+        </label>
+
+        <label>Email
+          <input type="email" id="authEmail" required placeholder="nome@email.it" />
+        </label>
+
+        <div id="userPlanBox">
+          <label>Piano pescatore</label>
+          <select id="userPlan">
+            <option value="free">Free — ricerca e community base</option>
+            <option value="premium">Premium — prenotazioni avanzate e catch report</option>
+          </select>
+        </div>
+
+        <div id="businessPlanBox" style="display:none">
+          <label>Piano aziendale</label>
+          <select id="businessPlan">
+            <option value="business-basic">Business Basic — 1 lago</option>
+            <option value="business-pro">Business Pro — laghi illimitati, noleggi e report</option>
+          </select>
+        </div>
+
+        <button class="btn btn-primary full" type="submit">Continua</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
