@@ -48,6 +48,7 @@
         <a href="#/" class="logo footer-logo">HOOK<span>MAP</span></a>
         <p>La piattaforma italiana per scoprire, confrontare e prenotare laghi dedicati al Carp Fishing.</p>
       </div>
+
       <div>
         <h4>Piattaforma</h4>
         <a href="#/explore">Esplora laghi</a>
@@ -55,17 +56,21 @@
         <a href="#/community">Community</a>
         <a href="#/trips">Fishing Trips</a>
       </div>
+
       <div>
         <h4>Account</h4>
-        <a href="#/dashboard">Area personale</a>
+        <a href="#/dashboard">Area pescatore</a>
+        <a href="#/dashboard">Area aziende</a>
         <button class="link-btn" id="footerLogin">Accedi</button>
         <button class="link-btn" id="footerRegister">Registrati</button>
       </div>
+
       <div>
         <h4>Nota</h4>
         <p>Versione dimostrativa. Laghi, prezzi, disponibilità, recensioni e catture sono dati di esempio non verificati.</p>
       </div>
     </div>
+
     <div class="footer-bottom">
       <div class="container">
         <p>© <span id="year"></span> HOOKMAP — LET’S US FISH. Demo dimostrativa.</p>
@@ -75,17 +80,56 @@
 
   <div class="modal" id="authModal" aria-hidden="true">
     <div class="modal-backdrop" data-close-modal></div>
+
     <div class="modal-card">
       <button class="modal-close" data-close-modal aria-label="Chiudi">×</button>
+
       <h3 id="authTitle">Accedi a HOOKMAP</h3>
-      <p class="muted">Demo: nessun dato personale viene inviato a un server.</p>
+      <p class="muted">Scegli il tipo di account. Demo: nessun dato viene inviato a un server.</p>
+
       <form id="authForm">
-        <label>Nome utente
-          <input type="text" id="authUser" required placeholder="es. carper_lombardo" />
+        <div class="account-type">
+          <label class="account-option">
+            <input type="radio" name="accountType" value="user" checked />
+            <span>
+              <strong>Pescatore</strong>
+              <small>Free o Premium</small>
+            </span>
+          </label>
+
+          <label class="account-option">
+            <input type="radio" name="accountType" value="business" />
+            <span>
+              <strong>Azienda / Gestore</strong>
+              <small>Gestione lago e servizi</small>
+            </span>
+          </label>
+        </div>
+
+        <label>Nome o ragione sociale
+          <input type="text" id="authUser" required placeholder="es. Marco Rossi / Carp Lake S.r.l." />
         </label>
+
         <label>Email
           <input type="email" id="authEmail" required placeholder="nome@email.it" />
         </label>
+
+        <div id="userPlanBox">
+          <label>Piano pescatore</label>
+          <select id="userPlan">
+            <option value="free">Free — ricerca e community base</option>
+            <option value="premium">Premium — prenotazioni avanzate e catch report</option>
+          </select>
+        </div>
+
+        <div id="businessPlanBox" style="display:none">
+          <label>Piano aziendale</label>
+          <select id="businessPlan">
+            <option value="business-basic">Business Basic — 1 lago</option>
+            <option value="business-pro">Business Pro — laghi illimitati, noleggi e report</option>
+          </select>
+        </div>
+
         <button class="btn btn-primary full" type="submit">Continua</button>
       </form>
     </div>

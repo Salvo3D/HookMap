@@ -1,5 +1,6 @@
 /* ============================
-   HOOKMAP — Demo data & app
+   HOOKMAP — Demo application
+   Account: Pescatore / Azienda
    ============================ */
 
 const LAKES = [
@@ -90,7 +91,7 @@ const LAKES = [
     accessible:false,
     services:["Parcheggio","Bagni e docce","Noleggio barche","Ristorazione","Servizi per famiglie"],
     coords:[43.133,12.107],
-    description:"Demo dimostrativa: grande lago umbriano con fondali prevalentemente fangosi, canneti e zone aperte ideali per sessioni prolungate.",
+    description:"Demo dimostrativa: grande lago umbro con fondali prevalentemente fangosi, canneti e zone aperte ideali per sessioni prolungate.",
     rules:"Demo: rispetto delle aree protette, divieto di accesso con mezzi motorizzati nelle zone delimitate.",
     catches:[
       {species:"Carpa comune",weight:"20,3 kg",date:"Demo — aprile"},
@@ -130,7 +131,7 @@ const LAKES = [
     availability:"Disponibilità demo: 4 postazioni su 10"
   },
   {
-    id:"lago-di-vidracco",
+    id:"lago-di-viverone",
     name:"Lago di Viverone",
     region:"Piemonte",
     province:"Biella",
@@ -246,7 +247,7 @@ const POSTS = [
     id:1,
     user:"Marco R.",
     lake:"Lago di Levico",
-    text:"Demo di catch report: bella sessione alba, azione costante su boilies e presentazione attenta vicino alla barra sabbiosa.",
+    text:"Demo di catch report: bella sessione all’alba, azione costante su boilies e presentazione attenta vicino alla barra sabbiosa.",
     image:"https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
     likes:48,
     liked:false,
@@ -264,6 +265,27 @@ const POSTS = [
     comments:["Demo: ottimo report, grazie per la condivisione."],
     catch:"Carpa amur — 18,9 kg"
   }
+];
+
+const BUSINESS_LAKE_ID = "lago-di-levico";
+
+const BUSINESS_SWIMS = [
+  {id:1,name:"Postazione 1",price:45,status:"Disponibile"},
+  {id:2,name:"Postazione 2",price:45,status:"Disponibile"},
+  {id:3,name:"Postazione 3",price:55,status:"Occupata"},
+  {id:4,name:"Postazione 4",price:45,status:"Disponibile"}
+];
+
+const EQUIPMENT = [
+  {id:"eq-1",name:"Set canne Carp 12ft",price:25,available:true},
+  {id:"eq-2",name:"Bivvy 2 posti",price:40,available:true},
+  {id:"eq-3",name:"Barca di servizio",price:70,available:false},
+  {id:"eq-4",name:"Echobot",price:55,available:true}
+];
+
+const BUSINESS_BOOKINGS = [
+  {id:"BK-1042",user:"Marco R.",lake:"Lago di Levico",swim:"Postazione 4",dates:"12–14 del mese",people:2,total:"€180",status:"Confermata"},
+  {id:"BK-1043",user:"Giulia M.",lake:"Lago di Levico",swim:"Postazione 7",dates:"20–22 del mese",people:3,total:"€270",status:"In attesa"}
 ];
 
 let currentUser = null;
@@ -347,6 +369,31 @@ function tripCard(trip){
     </article>`;
 }
 
+function postCard(post){
+  const initials = post.user.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+  return `
+  <article class="post">
+    <div class="post-head">
+      <div class="avatar">${initials}</div>
+      <div>
+        <strong>${post.user}</strong>
+        <p class="small muted">${post.lake}</p>
+      </div>
+    </div>
+    ${post.catch ? `<span class="catch-tag">🐟 ${post.catch}</span>` : ""}
+    <p>${post.text}</p>
+    ${post.image ? `<img class="post-image" src="${post.image}" alt="Foto sessione" loading="lazy" />` : ""}
+    <div class="post-actions">
+      <button data-like="${post.id}" class="${post.liked ? "liked":""}">♥ ${post.likes} Mi piace</button>
+      <button data-comments="${post.id}">💬 ${post.comments.length} Commenti</button>
+      <button data-share="${post.id}">↗ Condividi</button>
+    </div>
+    <div id="comments-${post.id}" style="display:none;margin-top:14px">
+      ${post.comments.map(c=>`<p class="small">• ${c}</p>`).join("")}
+    </div>
+  </article>`;
+}
+
 /* ---------- Pages ---------- */
 function homePage(){
   return `
@@ -400,9 +447,7 @@ function homePage(){
         </div>
         <a href="#/explore" class="btn btn-outline">Esplora tutti</a>
       </div>
-      <div class="grid grid-3">
-        ${LAKES.slice(0,3).map(lakeCard).join("")}
-      </div>
+      <div class="grid grid-3">${LAKES.slice(0,3).map(lakeCard).join("")}</div>
     </div>
   </section>
 
@@ -441,6 +486,25 @@ function homePage(){
             <span class="badge gold">04</span>
             <h3 style="margin:12px 0">Condividi</h3>
             <p>Pubblica foto, racconti e catch report nella community di HOOKMAP.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-top:24px">
+        <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)">
+          <div class="card-body">
+            <span class="badge gold">Per pescatori</span>
+            <h3 style="margin:12px 0">Free o Premium</h3>
+            <p>Cerca laghi, salva i preferiti, prenota e condividi i tuoi catch report con la community.</p>
+            <button class="btn btn-gold full" id="userCta" style="margin-top:16px">Crea account pescatore</button>
+          </div>
+        </div>
+        <div class="card" style="background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12)">
+          <div class="card-body">
+            <span class="badge gold">Per gestori</span>
+            <h3 style="margin:12px 0">Gestisci il tuo lago</h3>
+            <p>Pubblica postazioni, prezzi, disponibilità, servizi e noleggio attrezzature con l’account Azienda.</p>
+            <button class="btn btn-gold full" id="businessCta" style="margin-top:16px">Area aziende</button>
           </div>
         </div>
       </div>
@@ -711,58 +775,6 @@ function comparePage(){
   </section>`;
 }
 
-function renderCompare(){
-  const box = document.getElementById("compareResult");
-  if(!box) return;
-
-  if(compareSelection.length === 0){
-    box.innerHTML = `<div class="empty">Seleziona almeno un lago per avviare il confronto.</div>`;
-    return;
-  }
-
-  const selected = LAKES.filter(l=>compareSelection.includes(l.id));
-  const rows = [
-    ["Prezzo per notte", l=>money(l.price)],
-    ["Dimensioni", l=>l.size],
-    ["Profondità", l=>l.depth],
-    ["Peso massimo catture", l=>l.maxCarp],
-    ["Numero postazioni", l=>`${l.swims}`],
-    ["Servizi", l=>l.services.join(", ")],
-    ["Disponibilità", l=>l.availability],
-    ["Recensioni", l=>`${l.rating} / 5 · ${l.reviews} recensioni demo`],
-    ["Barca", l=>l.boat ? "Disponibile" : "Non disponibile"],
-    ["Accessibilità", l=>l.accessible ? "Sì" : "Da verificare"]
-  ];
-
-  box.innerHTML = `
-    <div class="compare-wrap">
-      <table class="compare-table">
-        <thead>
-          <tr>
-            <th>Caratteristica</th>
-            ${selected.map(l=>`<th><div class="compare-lake"><img src="${l.image}" alt="${l.name}" /><strong>${l.name}</strong></div></th>`).join("")}
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(([label,fn])=>`
-            <tr>
-              <td>${label}</td>
-              ${selected.map(l=>`<td>${fn(l)}</td>`).join("")}
-            </tr>`).join("")}
-        </tbody>
-      </table>
-    </div>
-    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-      <button class="btn btn-ghost" id="clearCompare">Svuota confronto</button>
-      ${selected.length===1 ? `<a class="btn btn-primary" href="#/lake/${selected[0].id}">Vai alla scheda</a>`:""}
-    </div>`;
-
-  document.getElementById("clearCompare").onclick = ()=>{
-    compareSelection = [];
-    router();
-  };
-}
-
 function communityPage(){
   return `
   <section class="section">
@@ -821,31 +833,6 @@ function communityPage(){
   </section>`;
 }
 
-function postCard(post){
-  const initials = post.user.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
-  return `
-  <article class="post">
-    <div class="post-head">
-      <div class="avatar">${initials}</div>
-      <div>
-        <strong>${post.user}</strong>
-        <p class="small muted">${post.lake}</p>
-      </div>
-    </div>
-    ${post.catch ? `<span class="catch-tag">🐟 ${post.catch}</span>` : ""}
-    <p>${post.text}</p>
-    ${post.image ? `<img class="post-image" src="${post.image}" alt="Foto sessione" loading="lazy" />` : ""}
-    <div class="post-actions">
-      <button data-like="${post.id}" class="${post.liked ? "liked":""}">♥ ${post.likes} Mi piace</button>
-      <button data-comments="${post.id}">💬 ${post.comments.length} Commenti</button>
-      <button data-share="${post.id}">↗ Condividi</button>
-    </div>
-    <div id="comments-${post.id}" style="display:none;margin-top:14px">
-      ${post.comments.map(c=>`<p class="small">• ${c}</p>`).join("")}
-    </div>
-  </article>`;
-}
-
 function tripsPage(){
   return `
   <section class="section">
@@ -868,12 +855,17 @@ function dashboardPage(){
       <div class="container">
         <div class="empty">
           <h3>Area personale</h3>
-          <p>Accedi o registrati per visualizzare prenotazioni, preferiti, catch report, gruppi e messaggi.</p>
+          <p>Accedi come Pescatore o Azienda per accedere alla tua dashboard.</p>
           <button class="btn btn-primary" id="dashLogin" style="margin-top:18px">Accedi / Registrati</button>
         </div>
       </div>
     </section>`;
   }
+
+  const isBusiness = currentUser.type === "business";
+  const planLabel = isBusiness
+    ? (currentUser.plan === "business-pro" ? "Business Pro" : "Business Basic")
+    : (currentUser.plan === "premium" ? "Premium" : "Free");
 
   return `
   <section class="section">
@@ -881,85 +873,44 @@ function dashboardPage(){
       <div class="section-head">
         <div>
           <h2>Ciao, ${currentUser.name}</h2>
-          <p>La tua dashboard HOOKMAP. I dati mostrati sono dimostrativi e salvati solo in questa sessione del browser.</p>
+          <p>${isBusiness
+            ? "Gestisci il tuo lago, le postazioni, i noleggi e le prenotazioni ricevute."
+            : "Gestisci prenotazioni, preferiti, catch report, gruppi e messaggi."}</p>
         </div>
-        <button class="btn btn-ghost" id="logoutBtn">Esci</button>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span class="plan-badge ${isBusiness ? "business" : (currentUser.plan === "premium" ? "" : "free")}">
+            ${isBusiness ? "🏢 " : "🎣 "}${planLabel}
+          </span>
+          <button class="btn btn-ghost" id="logoutBtn">Esci</button>
+        </div>
       </div>
 
       <div class="dash-layout">
         <aside class="dash-nav">
-          <button class="active" data-dash="overview">Panoramica</button>
-          <button data-dash="bookings">Prenotazioni</button>
-          <button data-dash="favorites">Laghi preferiti</button>
-          <button data-dash="catches">Catch Report</button>
-          <button data-dash="groups">Gruppi</button>
-          <button data-dash="messages">Messaggi</button>
-          <button data-dash="trips">Viaggi prenotati</button>
-          <button data-dash="manager">Area gestori</button>
+          ${isBusiness ? `
+            <button class="active" data-dash="business-overview">Panoramica azienda</button>
+            <button data-dash="business-lake">Il mio lago</button>
+            <button data-dash="business-swims">Postazioni e prezzi</button>
+            <button data-dash="business-calendar">Disponibilità</button>
+            <button data-dash="business-bookings">Prenotazioni</button>
+            <button data-dash="business-equipment">Noleggio attrezzature</button>
+            <button data-dash="business-reports">Report e incassi</button>
+          ` : `
+            <button class="active" data-dash="overview">Panoramica</button>
+            <button data-dash="bookings">Prenotazioni</button>
+            <button data-dash="favorites">Laghi preferiti</button>
+            <button data-dash="catches">Catch Report</button>
+            <button data-dash="groups">Gruppi</button>
+            <button data-dash="messages">Messaggi</button>
+            <button data-dash="trips">Viaggi prenotati</button>
+            ${currentUser.plan === "premium" ? `<button data-dash="premium">Vantaggi Premium</button>` : ""}
+          `}
         </aside>
 
         <div id="dashContent"></div>
       </div>
     </div>
   </section>`;
-}
-
-function renderDash(section){
-  const box = document.getElementById("dashContent");
-  if(!box) return;
-
-  const views = {
-    overview:()=>`
-      <div class="stat-grid">
-        <div class="stat"><span>Prenotazioni</span><strong>2</strong></div>
-        <div class="stat"><span>Preferiti</span><strong>3</strong></div>
-        <div class="stat"><span>Catch report</span><strong>5</strong></div>
-        <div class="stat"><span>Gruppi</span><strong>2</strong></div>
-      </div>
-      <div class="panel"><h3>Prossima sessione</h3>
-        <div class="booking-row">
-          <div><strong>Lago di Levico</strong><p class="small muted">Postazione 4 · 2 pescatori</p></div>
-          <span class="badge gold">Demo</span>
-        </div>
-      </div>`,
-    bookings:()=>`
-      <div class="panel"><h3>Prenotazioni</h3>
-        <div class="booking-row"><div><strong>Lago di Levico</strong><p class="small muted">Demo · 2 notti · 2 pescatori</p></div><span class="badge">Confermata</span></div>
-        <div class="booking-row"><div><strong>Lago Trasimeno</strong><p class="small muted">Demo · 1 notte · 1 pescatore</p></div><span class="badge gold">In attesa</span></div>
-      </div>`,
-    favorites:()=>`
-      <div class="grid grid-2">${LAKES.slice(0,2).map(lakeCard).join("")}</div>`,
-    catches:()=>`
-      <div class="panel"><h3>Catch Report personali</h3>
-        <div class="review"><strong>Carpa specchio — 22,8 kg</strong><p class="small muted">Lago di Levico · demo</p></div>
-        <div class="review"><strong>Carpa amur — 18,9 kg</strong><p class="small muted">Lago Trasimeno · demo</p></div>
-      </div>`,
-    groups:()=>`
-      <div class="grid grid-2">
-        <div class="panel"><h3>Carp Night Crew</h3><p class="small">Membro demo</p></div>
-        <div class="panel"><h3>Session Buddies</h3><p class="small">Membro demo</p></div>
-      </div>`,
-    messages:()=>`
-      <div class="panel"><h3>Messaggi</h3>
-        <div class="booking-row"><div><strong>Marco R.</strong><p class="small muted">Demo: ci vediamo sabato alla postazione 4?</p></div><span class="badge">Nuovo</span></div>
-        <div class="booking-row"><div><strong>Giulia M.</strong><p class="small muted">Demo: ho condiviso la mappa dei fondali.</p></div></div>
-      </div>`,
-    trips:()=>`
-      <div class="panel"><h3>Viaggi prenotati</h3>
-        <div class="trip-row"><div><strong>Carp Session nelle Alpi</strong><p class="small muted">12–15 giugno · Lago di Levico</p></div><span class="badge gold">Confermato</span></div>
-      </div>`,
-    manager:()=>`
-      <div class="panel"><h3>Area gestori</h3>
-        <p class="small muted">Questa sezione è predisposta per una futura gestione di laghi, postazioni, prezzi, disponibilità e prenotazioni.</p>
-        <div class="grid grid-3" style="margin-top:18px">
-          <div class="spec"><span>Laghi</span><strong>0 attivi</strong></div>
-          <div class="spec"><span>Postazioni</span><strong>0 configurate</strong></div>
-          <div class="spec"><span>Prenotazioni</span><strong>0 da gestire</strong></div>
-        </div>
-      </div>`
-  };
-
-  box.innerHTML = (views[section] || views.overview)();
 }
 
 /* ---------- Maps ---------- */
@@ -1015,6 +966,8 @@ function applyExploreFilters(){
 
   if(count) count.textContent = `${results.length} laghi disponibili nella demo`;
   if(grid) grid.innerHTML = results.length ? results.map(lakeCard).join("") : `<div class="empty">Nessun lago corrisponde ai filtri selezionati.</div>`;
+
+  bindGlobalCardActions();
 }
 
 /* ---------- Booking ---------- */
@@ -1040,7 +993,8 @@ function updateBooking(lake){
 function openAuth(mode="login", next=null){
   const modal = document.getElementById("authModal");
   document.getElementById("authTitle").textContent =
-    mode==="register" ? "Crea il tuo account HOOKMAP" : "Accedi a HOOKMAP";
+    mode === "register" ? "Crea il tuo account HOOKMAP" : "Accedi a HOOKMAP";
+
   modal.dataset.next = next || "";
   modal.classList.add("open");
   modal.setAttribute("aria-hidden","false");
@@ -1052,6 +1006,274 @@ function closeAuth(){
   modal.setAttribute("aria-hidden","true");
 }
 
+/* ---------- Compare ---------- */
+function renderCompare(){
+  const box = document.getElementById("compareResult");
+  if(!box) return;
+
+  if(compareSelection.length === 0){
+    box.innerHTML = `<div class="empty">Seleziona almeno un lago per avviare il confronto.</div>`;
+    return;
+  }
+
+  const selected = LAKES.filter(l=>compareSelection.includes(l.id));
+  const rows = [
+    ["Prezzo per notte", l=>money(l.price)],
+    ["Dimensioni", l=>l.size],
+    ["Profondità", l=>l.depth],
+    ["Peso massimo catture", l=>l.maxCarp],
+    ["Numero postazioni", l=>`${l.swims}`],
+    ["Servizi", l=>l.services.join(", ")],
+    ["Disponibilità", l=>l.availability],
+    ["Recensioni", l=>`${l.rating} / 5 · ${l.reviews} recensioni demo`],
+    ["Barca", l=>l.boat ? "Disponibile" : "Non disponibile"],
+    ["Accessibilità", l=>l.accessible ? "Sì" : "Da verificare"]
+  ];
+
+  box.innerHTML = `
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Caratteristica</th>
+            ${selected.map(l=>`<th><div class="compare-lake"><img src="${l.image}" alt="${l.name}" /><strong>${l.name}</strong></div></th>`).join("")}
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(([label,fn])=>`
+            <tr>
+              <td>${label}</td>
+              ${selected.map(l=>`<td>${fn(l)}</td>`).join("")}
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+      <button class="btn btn-ghost" id="clearCompare">Svuota confronto</button>
+      ${selected.length===1 ? `<a class="btn btn-primary" href="#/lake/${selected[0].id}">Vai alla scheda</a>`:""}
+    </div>`;
+
+  document.getElementById("clearCompare").onclick = ()=>{
+    compareSelection = [];
+    router();
+  };
+}
+
+/* ---------- Dashboard ---------- */
+function renderDash(section){
+  const box = document.getElementById("dashContent");
+  if(!box) return;
+
+  const isBusiness = currentUser?.type === "business";
+
+  const userViews = {
+    overview:()=>`
+      <div class="stat-grid">
+        <div class="stat"><span>Prenotazioni</span><strong>2</strong></div>
+        <div class="stat"><span>Preferiti</span><strong>3</strong></div>
+        <div class="stat"><span>Catch report</span><strong>5</strong></div>
+        <div class="stat"><span>Gruppi</span><strong>2</strong></div>
+      </div>
+      <div class="panel">
+        <h3>Prossima sessione</h3>
+        <div class="booking-row">
+          <div><strong>Lago di Levico</strong><p class="small muted">Postazione 4 · 2 pescatori</p></div>
+          <span class="badge gold">Demo</span>
+        </div>
+      </div>`,
+    bookings:()=>`
+      <div class="panel"><h3>Prenotazioni</h3>
+        <div class="booking-row"><div><strong>Lago di Levico</strong><p class="small muted">Demo · 2 notti · 2 pescatori</p></div><span class="badge">Confermata</span></div>
+        <div class="booking-row"><div><strong>Lago Trasimeno</strong><p class="small muted">Demo · 1 notte · 1 pescatore</p></div><span class="badge gold">In attesa</span></div>
+      </div>`,
+    favorites:()=>`<div class="grid grid-2">${LAKES.slice(0,2).map(lakeCard).join("")}</div>`,
+    catches:()=>`
+      <div class="panel"><h3>Catch Report personali</h3>
+        <div class="review"><strong>Carpa specchio — 22,8 kg</strong><p class="small muted">Lago di Levico · demo</p></div>
+        <div class="review"><strong>Carpa amur — 18,9 kg</strong><p class="small muted">Lago Trasimeno · demo</p></div>
+      </div>`,
+    groups:()=>`
+      <div class="grid grid-2">
+        <div class="panel"><h3>Carp Night Crew</h3><p class="small">Membro demo</p></div>
+        <div class="panel"><h3>Session Buddies</h3><p class="small">Membro demo</p></div>
+      </div>`,
+    messages:()=>`
+      <div class="panel"><h3>Messaggi</h3>
+        <div class="booking-row"><div><strong>Marco R.</strong><p class="small muted">Demo: ci vediamo sabato alla postazione 4?</p></div><span class="badge">Nuovo</span></div>
+      </div>`,
+    trips:()=>`
+      <div class="panel"><h3>Viaggi prenotati</h3>
+        <div class="trip-row"><div><strong>Carp Session nelle Alpi</strong><p class="small muted">12–15 giugno · Lago di Levico</p></div><span class="badge gold">Confermato</span></div>
+      </div>`,
+    premium:()=>`
+      <div class="panel">
+        <h3>Vantaggi Premium</h3>
+        <ul class="list-check">
+          <li>Prenotazione prioritaria delle postazioni demo.</li>
+          <li>Salvataggio illimitato di catch report.</li>
+          <li>Confronto avanzato tra laghi.</li>
+          <li>Notifiche per nuove disponibilità.</li>
+        </ul>
+      </div>`
+  };
+
+  const businessViews = {
+    "business-overview":()=>`
+      <div class="stat-grid">
+        <div class="stat"><span>Prenotazioni</span><strong>${BUSINESS_BOOKINGS.length}</strong></div>
+        <div class="stat"><span>Postazioni</span><strong>${BUSINESS_SWIMS.length}</strong></div>
+        <div class="stat"><span>Attrezzature</span><strong>${EQUIPMENT.length}</strong></div>
+        <div class="stat"><span>Incassi demo</span><strong>€450</strong></div>
+      </div>
+      <div class="panel">
+        <h3>Il tuo lago</h3>
+        <p class="small muted">Lago di Levico · Trentino-Alto Adige · piano ${currentUser.plan === "business-pro" ? "Business Pro" : "Business Basic"}</p>
+        <div class="manager-actions">
+          <button class="btn btn-primary" data-manager="business-lake">Modifica scheda lago</button>
+          <button class="btn btn-outline" data-manager="business-swims">Gestisci postazioni</button>
+          <button class="btn btn-outline" data-manager="business-equipment">Gestisci noleggi</button>
+          <button class="btn btn-ghost" data-manager="business-bookings">Vedi prenotazioni</button>
+        </div>
+      </div>`,
+    "business-lake":()=>`
+      <div class="panel">
+        <h3>Scheda del lago</h3>
+        <form id="lakeManagerForm">
+          <div class="filter-group"><label>Nome lago</label><input value="Lago di Levico" /></div>
+          <div class="filter-group"><label>Regione</label><input value="Trentino-Alto Adige" /></div>
+          <div class="filter-group"><label>Prezzo base per notte</label><input type="number" value="45" /></div>
+          <div class="filter-group"><label>Descrizione</label><textarea rows="4">Demo: ambiente alpino con postazioni organizzate e fondali variabili.</textarea></div>
+          <button class="btn btn-primary" type="submit">Salva modifiche</button>
+        </form>
+      </div>`,
+    "business-swims":()=>`
+      <div class="panel">
+        <h3>Postazioni e prezzi</h3>
+        ${BUSINESS_SWIMS.map(s=>`
+          <div class="booking-row">
+            <div>
+              <strong>${s.name}</strong>
+              <p class="small muted">${money(s.price)}/notte · ${s.status}</p>
+            </div>
+            <button class="btn btn-ghost" data-edit-swim="${s.id}">Modifica</button>
+          </div>`).join("")}
+        <button class="btn btn-primary" id="addSwim" style="margin-top:16px">Aggiungi postazione</button>
+      </div>`,
+    "business-calendar":()=>`
+      <div class="panel">
+        <h3>Disponibilità</h3>
+        <p class="small muted">Demo: blocca date, apre stagioni e imposta limiti di pescatori per postazione.</p>
+        <div class="filter-group"><label>Data inizio blocco</label><input type="date" /></div>
+        <div class="filter-group"><label>Data fine blocco</label><input type="date" /></div>
+        <button class="btn btn-primary" id="blockDates">Blocca date</button>
+      </div>`,
+    "business-bookings":()=>`
+      <div class="panel">
+        <h3>Prenotazioni ricevute</h3>
+        ${BUSINESS_BOOKINGS.map(b=>`
+          <div class="booking-row">
+            <div>
+              <strong>${b.user} — ${b.swim}</strong>
+              <p class="small muted">${b.lake} · ${b.dates} · ${b.people} pescatori · ${b.total}</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="badge ${b.status === "Confermata" ? "" : "gold"}">${b.status}</span>
+              ${b.status !== "Confermata" ? `<button class="btn btn-primary" data-confirm="${b.id}">Conferma</button>` : ""}
+            </div>
+          </div>`).join("")}
+      </div>`,
+    "business-equipment":()=>`
+      <div class="panel">
+        <h3>Noleggio attrezzature</h3>
+        ${EQUIPMENT.map(eq=>`
+          <div class="booking-row">
+            <div>
+              <strong>${eq.name}</strong>
+              <p class="small muted">${money(eq.price)}/giorno · ${eq.available ? "Disponibile" : "Noleggiata"}</p>
+            </div>
+            <button class="btn ${eq.available ? "btn-outline":"btn-danger"}" data-toggle-eq="${eq.id}">
+              ${eq.available ? "Segna noleggiata" : "Segna disponibile"}
+            </button>
+          </div>`).join("")}
+        <button class="btn btn-primary" id="addEquipment" style="margin-top:16px">Aggiungi attrezzatura</button>
+      </div>`,
+    "business-reports":()=>`
+      <div class="panel">
+        <h3>Report e incassi</h3>
+        <div class="spec-grid">
+          <div class="spec"><span>Prenotazioni mese</span><strong>12</strong></div>
+          <div class="spec"><span>Incasso demo</span><strong>€1.240</strong></div>
+          <div class="spec"><span>Noleggi</span><strong>8</strong></div>
+          <div class="spec"><span>Occupazione</span><strong>68%</strong></div>
+        </div>
+      </div>`
+  };
+
+  const views = isBusiness ? businessViews : userViews;
+  box.innerHTML = (views[section] || views[isBusiness ? "business-overview" : "overview"])();
+  bindDashboardActions();
+}
+
+function bindDashboardActions(){
+  document.querySelectorAll("[data-manager]").forEach(btn=>{
+    btn.onclick = ()=>{
+      document.querySelectorAll("[data-dash]").forEach(b=>b.classList.remove("active"));
+      document.querySelector(`[data-dash="${btn.dataset.manager}"]`)?.classList.add("active");
+      renderDash(btn.dataset.manager);
+    };
+  });
+
+  document.querySelectorAll("[data-confirm]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const booking = BUSINESS_BOOKINGS.find(b=>b.id===btn.dataset.confirm);
+      booking.status = "Confermata";
+      renderDash("business-bookings");
+      showToast(`Prenotazione ${booking.id} confermata.`);
+    };
+  });
+
+  document.querySelectorAll("[data-toggle-eq]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const eq = EQUIPMENT.find(e=>e.id===btn.dataset.toggleEq);
+      eq.available = !eq.available;
+      renderDash("business-equipment");
+      showToast(`${eq.name} aggiornato.`);
+    };
+  });
+
+  document.getElementById("lakeManagerForm")?.addEventListener("submit",e=>{
+    e.preventDefault();
+    showToast("Modifiche alla scheda lago salvate nella demo.");
+  });
+
+  document.getElementById("addSwim")?.addEventListener("click",()=>showToast("Nuova postazione aggiunta alla demo."));
+  document.getElementById("blockDates")?.addEventListener("click",()=>showToast("Date bloccate nella demo."));
+  document.getElementById("addEquipment")?.addEventListener("click",()=>showToast("Nuova attrezzatura aggiunta alla demo."));
+
+  document.querySelectorAll("[data-edit-swim]").forEach(btn=>{
+    btn.onclick = ()=>showToast(`Modifica postazione ${btn.dataset.editSwim} aperta nella demo.`);
+  });
+}
+
+function bindDashboard(){
+  document.getElementById("dashLogin")?.addEventListener("click",()=>openAuth("login","dashboard"));
+  document.getElementById("logoutBtn")?.addEventListener("click",()=>{
+    currentUser = null;
+    showToast("Sessione demo terminata.");
+    router();
+  });
+
+  document.querySelectorAll("[data-dash]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      document.querySelectorAll("[data-dash]").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      renderDash(btn.dataset.dash);
+    });
+  });
+
+  renderDash(currentUser?.type === "business" ? "business-overview" : "overview");
+}
+
 /* ---------- Router ---------- */
 function router(){
   const hash = location.hash.replace("#","") || "/";
@@ -1060,7 +1282,7 @@ function router(){
   window.scrollTo({top:0,behavior:"instant"});
   document.querySelectorAll("[data-nav]").forEach(a=>a.classList.remove("active"));
 
-  if(!path || path===""){
+  if(!path){
     app.innerHTML = homePage();
     document.querySelector('[data-nav="home"]')?.classList.add("active");
     bindHome();
@@ -1114,6 +1336,16 @@ function bindHome(){
     const session = document.getElementById("hSession").value;
     showToast(`Ricerca demo: ${region || "tutte le regioni"} · ${people} pescatori · ${session} ore`);
     location.hash = "#/explore";
+  });
+
+  document.getElementById("userCta")?.addEventListener("click",()=>{
+    openAuth("register");
+    selectAccountType("user");
+  });
+
+  document.getElementById("businessCta")?.addEventListener("click",()=>{
+    openAuth("register");
+    selectAccountType("business");
   });
 
   bindGlobalCardActions();
@@ -1252,25 +1484,6 @@ function bindTrips(){
   });
 }
 
-function bindDashboard(){
-  document.getElementById("dashLogin")?.addEventListener("click",()=>openAuth("login","dashboard"));
-  document.getElementById("logoutBtn")?.addEventListener("click",()=>{
-    currentUser = null;
-    showToast("Sessione demo terminata.");
-    router();
-  });
-
-  document.querySelectorAll("[data-dash]").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      document.querySelectorAll("[data-dash]").forEach(b=>b.classList.remove("active"));
-      btn.classList.add("active");
-      renderDash(btn.dataset.dash);
-    });
-  });
-
-  renderDash("overview");
-}
-
 function bindGlobalCardActions(){
   document.querySelectorAll("[data-book]").forEach(btn=>{
     btn.onclick = ()=>{
@@ -1297,6 +1510,19 @@ function bindGlobalCardActions(){
   });
 }
 
+/* ---------- Account type ---------- */
+function selectAccountType(type){
+  const input = document.querySelector(`input[name="accountType"][value="${type}"]`);
+  if(input) input.checked = true;
+
+  const isBusiness = type === "business";
+  document.getElementById("userPlanBox").style.display = isBusiness ? "none" : "block";
+  document.getElementById("businessPlanBox").style.display = isBusiness ? "block" : "none";
+  document.getElementById("authTitle").textContent = isBusiness
+    ? "Crea il tuo account Azienda"
+    : "Crea il tuo account HOOKMAP";
+}
+
 /* ---------- Global events ---------- */
 document.addEventListener("click",e=>{
   if(e.target.closest("[data-close-modal]")) closeAuth();
@@ -1315,13 +1541,37 @@ document.getElementById("registerBtn").addEventListener("click",()=>openAuth("re
 document.getElementById("footerLogin").addEventListener("click",()=>openAuth("login"));
 document.getElementById("footerRegister").addEventListener("click",()=>openAuth("register"));
 
+document.querySelectorAll('input[name="accountType"]').forEach(input=>{
+  input.addEventListener("change",()=>selectAccountType(input.value));
+});
+
 document.getElementById("authForm").addEventListener("submit",e=>{
   e.preventDefault();
+
   const name = document.getElementById("authUser").value.trim();
-  currentUser = {name};
+  const type = document.querySelector('input[name="accountType"]:checked').value;
+
+  currentUser = type === "business"
+    ? {
+        type:"business",
+        name,
+        plan:document.getElementById("businessPlan").value,
+        lakeId:BUSINESS_LAKE_ID
+      }
+    : {
+        type:"user",
+        name,
+        plan:document.getElementById("userPlan").value
+      };
+
   const next = document.getElementById("authModal").dataset.next;
   closeAuth();
-  showToast(`Benvenuto in HOOKMAP, ${name}!`);
+
+  showToast(
+    currentUser.type === "business"
+      ? `Area azienda attivata per ${name}.`
+      : `Benvenuto in HOOKMAP, ${name}!`
+  );
 
   if(next?.startsWith("book:")){
     location.hash = `#/lake/${next.split(":")[1]}`;
